@@ -16,15 +16,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - name: Find project folder
+      - name: Find V2 project folder
         id: proj
         run: |
-          f=$(find . -name settings.gradle.kts -not -path "./.git/*" | head -1)
-          echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
+          f=$(find . -name StopwatchState.kt -not -path "./.git/*" | head -1)
+          if [ -z "$f" ]; then echo "V2 projekt nem található"; exit 1; fi
+          dir="${f%/app/src/main/java/hu/nexio/hud/StopwatchState.kt}"
+          echo "V2 mappa: $dir"
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
       - name: Build debug APK
         working-directory: ${{ steps.proj.outputs.dir }}
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: nexio-hud-debug-apk
+          name: nexio-hud-v2-debug-apk
           path: ${{ steps.proj.outputs.dir }}/app/build/outputs/apk/debug/app-debug.apk
+          
